@@ -1,0 +1,15 @@
+node_modules/
+dist/
+.env
+.DS_Store
+
+# Go
+server
+*.exe
+*.test
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
