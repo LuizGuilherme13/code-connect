@@ -1,0 +1,42 @@
+.auth-layout {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 24px;
+  position: relative;
+  overflow: hidden;
+}
+
+.auth-layout::before,
+.auth-layout::after {
+  content: '';
+  position: absolute;
+  width: 300px;
+  height: 300px;
+  border: 40px solid rgba(108, 255, 160, 0.05);
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.auth-layout::before {
+  top: -100px;
+  left: -100px;
+}
+
+.auth-layout::after {
+  bottom: -100px;
+  right: -100px;
+}
+
+.auth-layout__card {
+  display: flex;
+  background-color: var(--bg-card);
+  border-radius: var(--border-radius);
+  width: 100%;
+  max-width: 900px;
+  min-height: 560px;
+  overflow: hidden;
+  position: relative;
+  z-index: 1;
+}

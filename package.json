@@ -2,14 +2,11 @@
   "name": "code-connect",
   "private": true,
   "scripts": {
-    "dev": "concurrently -n frontend,backend -c cyan,green \"npm run dev:frontend\" \"npm run dev:backend\"",
-    "dev:frontend": "npm run dev --prefix frontend",
+    "dev": "bash dev.sh",
+    "dev:frontend": "cd frontend && npx vite",
     "dev:backend": "cd backend && go run .",
     "build": "npm run build --prefix frontend",
     "build:backend": "cd backend && go build -o ../server .",
     "start:backend": "cd backend && go run ."
-  },
-  "devDependencies": {
-    "concurrently": "^10.0.3"
   }
 }

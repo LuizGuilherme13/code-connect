@@ -1,0 +1,10 @@
+.link {
+  color: var(--accent);
+  font-size: 14px;
+  text-decoration: none;
+  transition: opacity 0.2s;
+}
+
+.link:hover {
+  opacity: 0.8;
+}
