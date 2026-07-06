@@ -8,7 +8,7 @@ interface BannerProps {
 export default function Banner({ src, alt }: BannerProps) {
   return (
     <div className="banner">
-      <img className="banner__image" src={src} alt={alt} />
+      <img className="banner__image" src={src} alt={alt} fetchPriority="high" />
     </div>
   );
 }

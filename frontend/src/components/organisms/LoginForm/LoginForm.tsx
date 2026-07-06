@@ -9,9 +9,11 @@ import './LoginForm.css';
 
 interface LoginFormProps {
   onSubmit?: (data: { email: string; password: string; rememberMe: boolean }) => void;
+  error?: string;
+  loading?: boolean;
 }
 
-export default function LoginForm({ onSubmit }: LoginFormProps) {
+export default function LoginForm({ onSubmit, error, loading }: LoginFormProps) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [rememberMe, setRememberMe] = useState(false);
@@ -31,39 +33,29 @@ export default function LoginForm({ onSubmit }: LoginFormProps) {
       <form className="login-form__form" onSubmit={handleSubmit}>
         <FormField label="Email ou usuário" htmlFor="email">
           <Input
-            type="text"
-            placeholder="usuario123"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            name="email"
-            id="email"
-            required
+            type="text" placeholder="usuario123"
+            value={email} onChange={(e) => setEmail(e.target.value)}
+            name="email" id="email" required
           />
         </FormField>
 
         <FormField label="Senha" htmlFor="password">
           <Input
-            type="password"
-            placeholder="••••••"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            name="password"
-            id="password"
-            required
+            type="password" placeholder="••••••"
+            value={password} onChange={(e) => setPassword(e.target.value)}
+            name="password" id="password" required
           />
         </FormField>
 
         <div className="login-form__options">
-          <Checkbox
-            checked={rememberMe}
-            onChange={(e) => setRememberMe(e.target.checked)}
-            label="Lembrar-me"
-            id="rememberMe"
-          />
+          <Checkbox checked={rememberMe} onChange={(e) => setRememberMe(e.target.checked)}
+            label="Lembrar-me" id="rememberMe" />
           <Link href="#">Esqueci a senha</Link>
         </div>
 
-        <Button type="submit">Login →</Button>
+        {error && <p className="form-error">{error}</p>}
+
+        <Button type="submit" disabled={loading}>Login →</Button>
       </form>
 
       <div className="login-form__divider">
@@ -77,7 +69,7 @@ export default function LoginForm({ onSubmit }: LoginFormProps) {
 
       <div className="login-form__footer">
         <span>Ainda não tem conta?</span>
-        <Link href="#">Crie seu cadastro!</Link>
+        <Link to="/cadastro">Crie seu cadastro!</Link>
       </div>
     </div>
   );
