@@ -7,6 +7,10 @@
     "dev:backend": "cd backend && go run .",
     "build": "npm run build --prefix frontend",
     "build:backend": "cd backend && go build -o ../server .",
-    "start:backend": "cd backend && go run ."
+    "start:backend": "cd backend && go run .",
+    "test": "npm run test --prefix frontend",
+    "test:watch": "npm run test:watch --prefix frontend",
+    "test:backend": "cd backend && go test ./... -v",
+    "test:backend:watch": "cd backend && go test ./... -v -count=1"
   }
 }
