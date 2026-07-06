@@ -1,10 +1,31 @@
+// @title           Code Connect API
+// @version         1.0
+// @description     API do projeto Code Connect
+// @host            localhost:8080
+// @BasePath        /
+// @securityDefinitions.apikey BearerAuth
+// @in header
+// @name Authorization
+// @description Enter "Bearer {token}" (e.g. Bearer eyJhbGci...)
 package main
 
 import (
+	"database/sql"
 	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
 	"os"
+
+	"code-connect/backend/handlers"
+	"code-connect/backend/middleware"
+	"code-connect/backend/store"
+
+	httpSwagger "github.com/swaggo/http-swagger/v2"
+
+	_ "code-connect/backend/docs"
+
+	_ "github.com/lib/pq"
 )
 
 func main() {
@@ -13,6 +34,35 @@ func main() {
 		port = "8080"
 	}
 
+	dbHost := getEnv("DB_HOST", "localhost")
+	dbPort := getEnv("DB_PORT", "5432")
+	dbUser := getEnv("DB_USER", "codeconnect")
+	dbPass := getEnv("DB_PASSWORD", "codeconnect")
+	dbName := getEnv("DB_NAME", "codeconnect")
+
+	dsn := fmt.Sprintf(
+		"host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
+		dbHost, dbPort, dbUser, dbPass, dbName,
+	)
+
+	db, err := sql.Open("postgres", dsn)
+	if err != nil {
+		log.Fatalf("failed to open database: %v", err)
+	}
+	defer db.Close()
+
+	if err := db.Ping(); err != nil {
+		log.Fatalf("failed to ping database: %v", err)
+	}
+	log.Println("Connected to PostgreSQL")
+
+	if err := store.InitSchema(db); err != nil {
+		log.Fatalf("failed to initialize schema: %v", err)
+	}
+
+	s := store.New(db)
+	h := handlers.New(s)
+
 	mux := http.NewServeMux()
 
 	mux.HandleFunc("GET /api/health", func(w http.ResponseWriter, r *http.Request) {
@@ -20,26 +70,27 @@ func main() {
 		json.NewEncoder(w).Encode(map[string]string{"status": "ok"})
 	})
 
-	mux.HandleFunc("GET /api/message", func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(map[string]string{"message": "Hello from Go!"})
-	})
+	mux.HandleFunc("POST /api/register", h.Register)
+	mux.HandleFunc("POST /api/login", h.Login)
+	mux.Handle("GET /api/users/me", middleware.AuthMiddleware(http.HandlerFunc(h.GetProfile)))
 
-	handler := corsMiddleware(mux)
+	mux.HandleFunc("GET /swagger/doc.json", func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		http.ServeFile(w, r, "docs/swagger.json")
+	})
+	mux.Handle("/swagger/", httpSwagger.Handler(
+		httpSwagger.URL("/swagger/doc.json"),
+	))
+
+	handler := middleware.CorsMiddleware(mux)
 
 	log.Printf("Backend running on :%s", port)
 	log.Fatal(http.ListenAndServe(":"+port, handler))
 }
 
-func corsMiddleware(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Access-Control-Allow-Origin", "*")
-		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
-		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
-		if r.Method == http.MethodOptions {
-			w.WriteHeader(http.StatusOK)
-			return
-		}
-		next.ServeHTTP(w, r)
-	})
+func getEnv(key, fallback string) string {
+	if v := os.Getenv(key); v != "" {
+		return v
+	}
+	return fallback
 }

@@ -1,0 +1,143 @@
+basePath: /
+definitions:
+  models.ErrorResponse:
+    properties:
+      error:
+        example: mensagem de erro
+        type: string
+    type: object
+  models.LoginRequest:
+    properties:
+      email:
+        example: joao@email.com
+        type: string
+      password:
+        example: "123456"
+        type: string
+    type: object
+  models.LoginResponse:
+    properties:
+      token:
+        example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+        type: string
+    type: object
+  models.RegisterRequest:
+    properties:
+      email:
+        example: joao@email.com
+        type: string
+      name:
+        example: João
+        type: string
+      password:
+        example: "123456"
+        type: string
+    type: object
+  models.UserResponse:
+    properties:
+      email:
+        example: joao@email.com
+        type: string
+      id:
+        example: "1"
+        type: string
+      name:
+        example: João
+        type: string
+    type: object
+host: localhost:8080
+info:
+  contact: {}
+  description: API do projeto Code Connect
+  title: Code Connect API
+  version: "1.0"
+paths:
+  /api/login:
+    post:
+      consumes:
+      - application/json
+      description: Autentica o usuário e retorna um token JWT
+      parameters:
+      - description: Credenciais
+        in: body
+        name: credentials
+        required: true
+        schema:
+          $ref: '#/definitions/models.LoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.LoginResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      summary: Efetuar login
+      tags:
+      - auth
+  /api/register:
+    post:
+      consumes:
+      - application/json
+      description: Cadastra um novo usuário com nome, email e senha
+      parameters:
+      - description: Dados do usuário
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/models.RegisterRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.UserResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      summary: Cadastrar usuário
+      tags:
+      - auth
+  /api/users/me:
+    get:
+      description: Retorna os dados do usuário autenticado
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.UserResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Obter dados do usuário
+      tags:
+      - users
+securityDefinitions:
+  BearerAuth:
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"
